@@ -45,6 +45,8 @@ export const options: NextAuthOptions = {
     displayName
     email
     passwordHash
+    defaultRole
+    phoneNumber
   }
 }`,
                 variables: {
@@ -81,6 +83,8 @@ export const options: NextAuthOptions = {
               id: user.id,
               name: user.displayName,
               email: user.email,
+              defaultRole: user.defaultRole,
+              phoneNumber: user.phoneNumber,
             };
           } else {
             // Invalid password
@@ -97,6 +101,22 @@ export const options: NextAuthOptions = {
     newUser: "/", // Redirect new users to a welcome page
   },
   callbacks: {
+    async session({ session, token }) {
+      if (token) {
+        session.user.id = token.id;
+        session.user.defaultRole = token.defaultRole;
+        session.user.phoneNumber = token.phoneNumber; // Add the user ID from token to the session
+      }
+      return session;
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.defaultRole = user.defaultRole;
+        token.phoneNumber = user.phoneNumber; // Add user ID to the token
+      }
+      return token;
+    },
     async redirect({ url, baseUrl }) {
       // Log for debugging
       console.log("Redirect URL:", url, "Base URL:", baseUrl);

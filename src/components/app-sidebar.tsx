@@ -1,97 +1,86 @@
-import React from "react";
+import * as React from "react"
+
+import { SearchForm } from "@/components/search-form"
+import { VersionSwitcher } from "@/components/version-switcher"
 import {
-  Settings,
-  Monitor,
-  Book,
-  Cog,
-  Building2,
-  BarChart2,
-  Plane,
-  MoreHorizontal,
-  HelpCircle,
-  MessageSquare,
-} from "lucide-react";
-import { useSession } from "next-auth/react";
-import Link from "next/link";
-const menuItems = [
-  {
-    title: "Platform",
-    items: [
-      { name: "Play", href: "/venues", icon: <Monitor size={18} /> },
-      {
-        name: "Dashboard",
-        href: "/userDashboard",
-        icon: <Building2 size={18} />,
-      },
-    ],
-  },
-];
-export default function Sidebar() {
-  const { data: session } = useSession();
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarRail,
+} from "@/components/ui/sidebar"
+
+// This is sample data.
+const data = {
+  versions: ["1.0.1", "1.1.0-alpha", "2.0.0-beta1"],
+  navMain: [
+    {
+      title: "Seller",
+      items: [
+        {
+          title: "Add seller",
+          url: "/add-seller",
+        },
+      ],
+    },
+    {
+      title: "API Reference",
+      url: "#",
+      items: [
+        {
+          title: "Components",
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Architecture",
+      url: "#",
+      items: [
+        {
+          title: "Accessibility",
+          url: "#",
+        },
+      ],
+    },
+  ],
+}
+
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <div className="w-64 h-screen bg-black text-gray-300 p-4 flex flex-col">
-      {/* Company Header */}
-      <div className="flex items-center gap-3 mb-8">
-        <div className="w-8 h-8 bg-blue-500 rounded flex items-center justify-center">
-          <span className="text-white font-bold text-sm">P</span>
-        </div>
-        <div>
-          <h1 className="font-semibold text-white">Playnue</h1>
-        </div>
-      </div>
-
-      {/* Menu Sections */}
-      <div className="flex-1">
-        {menuItems.map((section) => (
-          <div key={section.title} className="mb-6">
-            <p className="text-xs text-gray-500 uppercase mb-2">
-              {section.title}
-            </p>
-            {section.items.map((item) => (
-              <Link href={item.href}>
-                <div key={item.name}>
-                  <p
-                    
-                    className="flex items-center gap-2 p-2 rounded hover:bg-gray-800 mb-1"
-                  >
-                    {item.icon}
-                    <span>{item.name}</span>
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
+    <Sidebar {...props}>
+      <SidebarHeader>
+        <VersionSwitcher
+          versions={data.versions}
+          defaultVersion={data.versions[0]}
+        />
+        <SearchForm />
+      </SidebarHeader>
+      <SidebarContent>
+        {/* We create a SidebarGroup for each parent. */}
+        {data.navMain.map((item) => (
+          <SidebarGroup key={item.title}>
+            <SidebarGroupLabel>{item.title}</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {item.items.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild isActive={item.isActive}>
+                      <a href={item.url}>{item.title}</a>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
         ))}
-      </div>
-
-      {/* Footer Items */}
-      <div className="border-t border-gray-800 pt-4">
-        <a
-          href="#"
-          className="flex items-center gap-2 p-2 rounded hover:bg-gray-800 mb-1"
-        >
-          <HelpCircle size={18} />
-          <span>Support</span>
-        </a>
-        <a
-          href="#"
-          className="flex items-center gap-2 p-2 rounded hover:bg-gray-800 mb-1"
-        >
-          <MessageSquare size={18} />
-          <span>Feedback</span>
-        </a>
-      </div>
-
-      {/* User Profile */}
-      <div className="flex items-center gap-2 p-2 mt-2 rounded hover:bg-gray-800 cursor-pointer">
-        <div className="w-8 h-8 rounded bg-gradient-to-r from-purple-500 to-pink-500" />
-        <Link href="/api/auth/signout">
-          <div className="flex-1">
-            <p className="text-sm">{session?.user?.name}</p>
-            <p className="text-xs text-gray-500">{session?.user?.email}</p>
-          </div>
-        </Link>
-      </div>
-    </div>
-  );
+      </SidebarContent>
+      <SidebarRail />
+    </Sidebar>
+  )
 }
